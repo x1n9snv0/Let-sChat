@@ -1,4 +1,4 @@
-# Let-sChat
+# LetsChat
 A program for personal weChat
 
 
