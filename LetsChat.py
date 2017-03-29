@@ -126,39 +126,57 @@ def timer(robot):
         It will clean the messages over 2 minutes, and reply them if you haven't
 
     """
-    auto_replied = []
-    replied = {}
+    robot_replied = []
+    human_replied = {}
     reply = {}
     while 1:
-        try:
-            time.sleep(0.05)
-            for msg in robot.msg_queue:
-                if '@@' not in msg['FromUserName']:
-                    if msg['FromUserName'] != robot.me():
-                        if msg['FromUserName'] not in replied.keys():
-                            replied[msg['FromUserName']] = msg['CreateTime']
-                            reply[msg['FromUserName']] = False
-                        if reply[msg['FromUserName']]:
-                            if msg['MsgId'] not in auto_replied:
-                                reply_content = robot.get_turing(msg['Text']) or u'收到了 待会儿回'
-                                robot.send(reply_content, toUserName=msg['FromUserName'])
-                                auto_replied.append(msg['MsgId'])
-                    else:
-                        replied[msg['ToUserName']] = msg['CreateTime']
-            for key in replied.keys():
-                if time.time() - replied[key] > 90:
-                    reply[key] = True
+        time.sleep(0.05)
+        for msg in robot.msg_queue:
+            if '@@' not in msg['FromUserName']:
+                if msg['FromUserName'] != robot.me():
+                    if msg['FromUserName'] not in human_replied.keys():
+                        human_replied[msg['FromUserName']] = msg['CreateTime']
+                        reply[msg['FromUserName']] = False
+                        print "%s reply %s close." % (time.strftime("%H:%M:%S", time.localtime()), msg['FromUserName'])
+                    if reply[msg['FromUserName']]:
+                        if msg['MsgId'] not in robot_replied:
+                            reply_content = robot.get_turing(msg['Text']) or u'收到了 待会儿回'
+                            robot.send(reply_content, toUserName=msg['FromUserName'])
+                            robot_replied.append(msg['MsgId'])
                 else:
-                    reply[key] = False
-            for msg in robot.msg_queue:
-                if time.time() - msg['CreateTime'] > 120:
-                    robot.clear_msg(msg['MsgId'])
-        except KeyboardInterrupt:
-            os.remove('itchat.pkl')
-            os.remove('*.png')
-            os.remove('*.gif')
-            os.remove('*.mp3')
-
+                    human_replied[msg['ToUserName']] = msg['CreateTime']
+        for key in human_replied.keys():
+            if time.time() - human_replied[key] > 30:
+                reply[key] = True
+                print "%s reply %s open." % (time.strftime("%H:%M:%S", time.localtime()), key)
+            else:
+                reply[key] = False
+                print "%s reply %s close." % (time.strftime("%H:%M:%S", time.localtime()), key)
+        for msg in robot.msg_queue:
+            if msg['FromUserName'] != robot.me():
+                try:
+                    if msg['CreateTime'] < human_replied[msg['FromUserName']]:
+                        robot_replied.append(msg['MsgId'])
+                        reply[msg['FromUserName']] = False
+                        robot.clear_msg(msg['MsgId'])
+                        human_replied.pop(msg['FromUserName'])
+                        print "Reply close"
+                except KeyError:
+                    print "%s KeyError %s, can't compare." % \
+                          (time.strftime("%H:%M:%S", time.localtime()), msg['FromUserName'])
+                    pass
+            if time.time() - msg['CreateTime'] > 60:
+                robot.clear_msg(msg['MsgId'])
+                try:
+                    robot_replied.remove(msg['MsgId'])
+                    human_replied.pop(msg['MsgId'])
+                except ValueError:
+                    print "%s ValueError %s" % \
+                              (time.strftime("%H:%M:%S", time.localtime()), msg['MsgId'])
+                    pass
+                except KeyError:
+                    print "%s KeyError %s" % \
+                          (time.strftime("%H:%M:%S", time.localtime()), msg['MsgId'])
 
 if __name__ == '__main__':
     chatRobot = LetItChat()
