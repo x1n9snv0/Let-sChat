@@ -132,35 +132,36 @@ def timer(robot):
     while 1:
         time.sleep(0.05)
         for msg in robot.msg_queue:
-            if msg['MsgId'] not in status.keys():  # id不存在
-                if msg['FromUserName'] == robot.me():  # 由我发出
-                    if msg['ToUserName'] not in sessions.keys():
-                        sessions[msg['ToUserName']] = {}
-                        reply[msg['ToUserName']] = False
-                        sessions[msg['ToUserName']]['CreateTime'] = msg['CreateTime']
-                        sessions[msg['ToUserName']]['CreateBy'] = robot.me()
-                    sessions[msg['ToUserName']]['UpdateTime'] = msg['CreateTime']
-                    sessions[msg['ToUserName']]['UpdateBy'] = robot.me()
-                    status[msg['MsgId']] = 3
-                else:  # 不是由我发出
-                    if msg['FromUserName'] not in sessions.keys():
-                        sessions[msg['FromUserName']] = {}
-                        reply[msg['FromUserName']] = False
-                        sessions[msg['FromUserName']]['CreateTime'] = msg['CreateTime']
-                        sessions[msg['FromUserName']]['CreateBy'] = msg['FromUserName']
-                    sessions[msg['FromUserName']]['UpdateTime'] = msg['CreateTime']
-                    sessions[msg['FromUserName']]['UpdateBy'] = msg['FromUserName']
-                    status[msg['MsgId']] = 1
-            else:
-                if status[msg['MsgId']] == 1:
-                    if msg['CreateTime'] < sessions[msg['FromUserName']]['UpdateTime']:
-                        status[msg['MsgId']] = 2
-                    else:
-                        if reply[msg['FromUserName']]:
-                            reply_content = robot.get_turing(msg['Text']) or u'收到了 待会儿回'
-                            print "%s %s (auto reply)" % (time.strftime("%H:%M:%S", time.localtime()), reply_content)
-                            robot.send(reply_content, toUserName=msg['FromUserName'])
+            if '@@' not in msg['FromUserName']:
+                if msg['MsgId'] not in status.keys():  # id不存在
+                    if msg['FromUserName'] == robot.me():  # 由我发出
+                        if msg['ToUserName'] not in sessions.keys():
+                            sessions[msg['ToUserName']] = {}
+                            reply[msg['ToUserName']] = False
+                            sessions[msg['ToUserName']]['CreateTime'] = msg['CreateTime']
+                            sessions[msg['ToUserName']]['CreateBy'] = robot.me()
+                        sessions[msg['ToUserName']]['UpdateTime'] = msg['CreateTime']
+                        sessions[msg['ToUserName']]['UpdateBy'] = robot.me()
+                        status[msg['MsgId']] = 3
+                    else:  # 不是由我发出
+                        if msg['FromUserName'] not in sessions.keys():
+                            sessions[msg['FromUserName']] = {}
+                            reply[msg['FromUserName']] = False
+                            sessions[msg['FromUserName']]['CreateTime'] = msg['CreateTime']
+                            sessions[msg['FromUserName']]['CreateBy'] = msg['FromUserName']
+                        sessions[msg['FromUserName']]['UpdateTime'] = msg['CreateTime']
+                        sessions[msg['FromUserName']]['UpdateBy'] = msg['FromUserName']
+                        status[msg['MsgId']] = 1
+                else:
+                    if status[msg['MsgId']] == 1:
+                        if msg['CreateTime'] < sessions[msg['FromUserName']]['UpdateTime']:
                             status[msg['MsgId']] = 2
+                        else:
+                            if reply[msg['FromUserName']]:
+                                reply_content = robot.get_turing(msg['Text']) or u'收到了 待会儿回'
+                                print "%s %s (auto reply)" % (time.strftime("%H:%M:%S", time.localtime()), reply_content)
+                                robot.send(reply_content, toUserName=msg['FromUserName'])
+                                status[msg['MsgId']] = 2
         for key in sessions.keys():
             if time.time() - sessions[key]['UpdateTime'] > 60:
                 if sessions[key]['UpdateBy'] is not robot.me():
