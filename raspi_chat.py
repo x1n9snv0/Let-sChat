@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 import itchat
 from itchat.content import *
-from itchat import config, utils
 from pyqrcode import QRCode
 import time
 import os
@@ -25,9 +24,7 @@ class LetItChat(itchat.Core):
 
     def get_QR(self, uuid=None, enableCmdQR=False, picDir=None, qrCallback=None):
         """
-            Rewrite the get_QR() function as it doesn't work well when print QRcode
-            to Macintosh's Terminal.
-            Thanks to alishtory at https://github.com/alishtory/qrcode-terminal
+            Rewrite the get_QR() function to make it work on raspberry pi
         """
         uuid = uuid or self.uuid
         qrStorage = io.BytesIO()
