@@ -72,7 +72,6 @@ class LetItChat(itchat.Core):
         else:
             pass
 
-
     def clear_msg(self, msgid):
         for msg in self.msg_queue:
             if msg['MsgId'] == msgid:
