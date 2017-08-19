@@ -15,9 +15,6 @@ class LetItChat(itchat.Core):
         itchat.Core.__init__(self)
         self.msg_queue = []
         self.__apikey__ = 'c733ab82ea6e46d280edc9f49703572d'
-        '''
-        abc
-        '''
 
     def get_msg_from_queue(self, msgId):
         for msg in self.msg_queue:
