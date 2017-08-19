@@ -14,7 +14,6 @@ class LetItChat(itchat.Core):
     def __init__(self):
         itchat.Core.__init__(self)
         self.msg_queue = []
-        self.__apikey__ = 'c733ab82ea6e46d280edc9f49703572d'
 
     def get_msg_from_queue(self, msgId):
         for msg in self.msg_queue:
@@ -30,33 +29,16 @@ class LetItChat(itchat.Core):
             to Macintosh's Terminal.
             Thanks to alishtory at https://github.com/alishtory/qrcode-terminal
         """
-        white_block = '\033[0;37;47m  '
-        black_block = '\033[0;37;40m  '
-        new_line = '\033[0m\n'
         uuid = uuid or self.uuid
-        picDir = picDir or config.DEFAULT_QR
         qrStorage = io.BytesIO()
         qrCode = QRCode('https://login.weixin.qq.com/l/' + uuid)
-        qrCode.png(qrStorage, scale=10)
+        qrCode.png(qrStorage, scale=4)
         if hasattr(qrCallback, '__call__'):
             qrCallback(uuid=uuid, status='0', qrcode=qrStorage.getvalue())
         else:
             if enableCmdQR:
-                output = white_block * (len(qrCode.code) + 2) + new_line
-                for mn in qrCode.code:
-                    output += white_block
-                    for m in mn:
-                        if m == 1:
-                            output += black_block
-                        else:
-                            output += white_block
-                    output += white_block + new_line
-                output += white_block * (len(qrCode.code) + 2) + new_line
-                print output
-            else:
-                with open(picDir, 'wb') as f:
-                    f.write(qrStorage.getvalue())
-                utils.print_qr(picDir)
+                os.system('reset')
+                os.system('qrencode -t UTF8 "%s"' % qrCode.data)
         return qrStorage
 
     def auto_save(self, msg):
