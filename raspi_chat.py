@@ -110,7 +110,7 @@ class LetItChat(itchat.Core):
             else:
                 friend = self.search_friends(userName=msg['FromUserName'])
             print "%s> Saved %s from %s" % (time.strftime("%H:%M:%S", time.localtime()),
-                                            msg['FileName'], friend['NickName'])
+                                            msg['FileName'], assemble(zh2py(friend['NickName'])))
         else:
             pass
 
@@ -257,7 +257,7 @@ if __name__ == '__main__':
             else:
                 to_nickname = assemble(zh2py(to_user['NickName']))
             print "%s (%s)%s -> %s: %s." % (time.strftime("%H:%M:%S", time.localtime()),
-                                            chat_room_nickname, from_nickname, to_nickname, content)
+                                            chat_room_nickname, from_nickname, to_nickname, zh2py(content))
         else:
             chat_room = chatRobot.search_chatrooms(userName=msg['ToUserName'])
             chat_room_nickname = assemble(zh2py(chat_room['NickName']))
