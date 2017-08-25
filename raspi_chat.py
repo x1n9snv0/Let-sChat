@@ -113,6 +113,7 @@ def timer(robot):
 
     """
     while 1:
+        time.sleep(0.1)
         for msg in robot.msg_queue:
             if time.time() - msg['CreateTime'] > 120:
                 robot.clear_msg(msg['MsgId'])
