@@ -97,7 +97,7 @@ class LetItChat(itchat.Core):
             utils.clear_screen()
             if os.path.exists(picDir or config.DEFAULT_QR):
                 os.remove(picDir or config.DEFAULT_QR)
-            logger.info('Login successfully as %s' % zh2py(self.storageClass.nickName))
+            logger.info('Login successfully as %s' % assemble(zh2py(self.storageClass.nickName)))
         self.start_receiving(exitCallback)
         self.isLogging = False
 
