@@ -29,7 +29,7 @@ class LetItChat(itchat.Core):
 
     def get_QR(self, uuid=None, enableCmdQR=False, picDir=None, qrCallback=None):
         """
-            Rewrite the get_QR() function to make it work on raspberry pi
+            Rewrite the get_QR() function to make it work on Raspberry pi
         """
         uuid = uuid or self.uuid
         qrStorage = io.BytesIO()
