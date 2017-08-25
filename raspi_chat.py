@@ -11,6 +11,7 @@ import os
 import io
 import re
 import json
+import threading
 
 
 class LetItChat(itchat.Core):
@@ -105,8 +106,22 @@ def assemble(res):
     return statement
 
 
+def timer(robot):
+    """
+        This is a timer to check whether the old message is timeout or not.
+        It will clean the messages over 2 minutes.
+
+    """
+    while 1:
+        for msg in robot.msg_queue:
+            if time.time() - msg['CreateTime'] > 120:
+                robot.clear_msg(msg['MsgId'])
+
 if __name__ == '__main__':
     chatRobot = LetItChat()
+    timer_thread = threading.Thread(target=timer, args=(chatRobot,))
+    timer_thread.setDaemon(True)
+    timer_thread.start()
 
     @chatRobot.msg_register([TEXT, PICTURE, MAP, CARD, SHARING, RECORDING, ATTACHMENT, VIDEO, FRIENDS],
                             isFriendChat=True)
@@ -241,7 +256,6 @@ if __name__ == '__main__':
             except TypeError:
                 print "Got a TypeError, but nothing serious."
                 pass
-
 
     # @chatRobot.msg_register([NOTE], isGroupChat=True)
     # def forGroupChat(msg):
