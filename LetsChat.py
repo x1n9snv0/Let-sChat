@@ -10,6 +10,9 @@ import io
 import requests
 import threading
 import re
+import sys
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 
 class LetItChat(itchat.Core):
