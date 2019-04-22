@@ -4,6 +4,7 @@ import itchat
 from itchat.content import *
 from itchat import config, utils
 from pyqrcode import QRCode
+from functools import wraps
 import time
 import os
 import io
@@ -11,8 +12,45 @@ import requests
 import threading
 import re
 import sys
+import platform
 reload(sys)
 sys.setdefaultencoding('utf8')
+
+
+def checksystem(get_qr):
+    # if platform.system() == "Darwin":
+    #     @wraps(get_qr)
+    #     def get_QR(*args, **kwargs):
+    #         self = args[0]
+    #         uuid = kwargs['uuid'] if 'uuid' in kwargs else self.uuid
+    #         enableCmdQR = kwargs['enableCmdQR'] if 'enableCmdQR' in kwargs else False
+    #         picDir = kwargs['picDir'] if 'picDir' in kwargs else None
+    #         qrCallback = kwargs['qrCallback'] if 'qrCallback' in kwargs else None
+    #         return get_qr(self, uuid=uuid, enableCmdQR=enableCmdQR, picDir=picDir, qrCallback=qrCallback)
+    #     return get_QR
+    # elif platform.system() == "Windows":
+    #     @wraps(get_qr)
+    #     def get_QR(*args, **kwargs):
+    #         self = args[0]
+    #         uuid = kwargs['uuid'] if 'uuid' in kwargs else self.uuid
+    #         enableCmdQR = kwargs['enableCmdQR'] if 'enableCmdQR' in kwargs else False
+    #         picDir = kwargs['picDir'] if 'picDir' in kwargs else None
+    #         qrCallback = kwargs['qrCallback'] if 'qrCallback' in kwargs else None
+    #         return self.get_QR(self, uuid=uuid, enableCmdQR=enableCmdQR, picDir=picDir, qrCallback=qrCallback)
+    #     return get_QR
+
+    @wraps(get_qr)
+    def wrapper(*args, **kwargs):
+        self = args[0]
+        uuid = kwargs['uuid'] if 'uuid' in kwargs else self.uuid
+        enableCmdQR = kwargs['enableCmdQR'] if 'enableCmdQR' in kwargs else False
+        picDir = kwargs['picDir'] if 'picDir' in kwargs else None
+        qrCallback = kwargs['qrCallback'] if 'qrCallback' in kwargs else None
+        if platform.system() == "Windows":
+            return super(LetItChat, self).get_QR(uuid=uuid, enableCmdQR=enableCmdQR, picDir=picDir, qrCallback=qrCallback)
+        else:
+            return get_qr(self, uuid=uuid, enableCmdQR=enableCmdQR, picDir=picDir, qrCallback=qrCallback)
+    return wrapper
 
 
 class LetItChat(itchat.Core):
@@ -42,6 +80,7 @@ class LetItChat(itchat.Core):
     def me(self):
         return self.storageClass.userName
 
+    @checksystem
     def get_QR(self, uuid=None, enableCmdQR=False, picDir=None, qrCallback=None):
         """
             Rewrite the get_QR() function as it doesn't work well when print QRcode
@@ -174,6 +213,7 @@ def timer(robot):
         for msg in robot.msg_queue:
             if time.time() - msg['CreateTime'] > 120:
                 robot.clear_msg(msg['MsgId'])
+
 
 if __name__ == '__main__':
     chatRobot = LetItChat()
