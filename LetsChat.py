@@ -18,27 +18,14 @@ sys.setdefaultencoding('utf8')
 
 
 def checksystem(get_qr):
-    # if platform.system() == "Darwin":
-    #     @wraps(get_qr)
-    #     def get_QR(*args, **kwargs):
-    #         self = args[0]
-    #         uuid = kwargs['uuid'] if 'uuid' in kwargs else self.uuid
-    #         enableCmdQR = kwargs['enableCmdQR'] if 'enableCmdQR' in kwargs else False
-    #         picDir = kwargs['picDir'] if 'picDir' in kwargs else None
-    #         qrCallback = kwargs['qrCallback'] if 'qrCallback' in kwargs else None
-    #         return get_qr(self, uuid=uuid, enableCmdQR=enableCmdQR, picDir=picDir, qrCallback=qrCallback)
-    #     return get_QR
-    # elif platform.system() == "Windows":
-    #     @wraps(get_qr)
-    #     def get_QR(*args, **kwargs):
-    #         self = args[0]
-    #         uuid = kwargs['uuid'] if 'uuid' in kwargs else self.uuid
-    #         enableCmdQR = kwargs['enableCmdQR'] if 'enableCmdQR' in kwargs else False
-    #         picDir = kwargs['picDir'] if 'picDir' in kwargs else None
-    #         qrCallback = kwargs['qrCallback'] if 'qrCallback' in kwargs else None
-    #         return self.get_QR(self, uuid=uuid, enableCmdQR=enableCmdQR, picDir=picDir, qrCallback=qrCallback)
-    #     return get_QR
-
+    '''
+    This function decorates the origin get_QR function of itchat.Core
+    When we run it over Windows, get_QR is itchat.Core's get_QR in
+    itchat/components/login.py. If we are in Darwin platform, get_QR
+    will be modified for printing QR normally in Macintosh's Terminal.
+    :param get_qr: function The get_QR function in Windows Platform
+    :return: function
+    '''
     @wraps(get_qr)
     def wrapper(*args, **kwargs):
         self = args[0]
